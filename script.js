@@ -1,5 +1,5 @@
 /* =============================================================
-   COLOR DECODED — Richard Landis ASCII Generator
+   COLOR DECODED
    ============================================================= */
 
 const $  = (sel) => document.querySelector(sel);
