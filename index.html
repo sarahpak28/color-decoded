@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>COLOR DECODED — Richard Landis ASCII Generator</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ============== TOP NAV ============== -->
+<header class="topbar" id="topbar">
+  <div class="left">
+    <button class="nav-link" data-go="about"><span>About</span></button>
+  </div>
+  <button class="title" id="brand-title" data-go="home"><span>Color Decoded</span></button>
+  <div class="right">
+    <button class="nav-link" data-go="create"><span>Create</span></button>
+    <button class="nav-link" data-go="saved"><span>Saved</span></button>
+  </div>
+</header>
+
+<!-- ============== HOME — landing ============== -->
+<section class="page active" id="page-home">
+  <div class="home-stage">
+    <div class="gallery-linear" id="gallery-linear"></div>
+    <div class="gallery-grid hide" id="gallery-grid"></div>
+  </div>
+  <div class="home-bottom">
+    <div class="home-helper">Select an artwork to begin your design</div>
+    <div class="home-toggle">
+      <span class="toggle-label" id="lbl-linear">Linear</span>
+      <button class="pill" id="gallery-pill" data-mode="linear" aria-label="toggle layout">
+        <span class="dot"></span>
+      </button>
+      <span class="toggle-label" id="lbl-grid">Gallery</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ABOUT ============== -->
+<section class="page" id="page-about">
+  <div class="about-page">
+
+    <!-- ===== Section 1: intro + wave + credits (one screen) ===== -->
+    <div class="about-section about-section-1">
+      <div class="about-intro">
+        <h1 class="about-h1">What is<br>Color Decoded?</h1>
+        <div class="about-body">
+          <p>Color Decoded is an interactive design platform that allows users to reinterpret Richard Landis's work through the lens of ASCII art. With inspiration from <em>Color Decoded: The Textiles of Richard Landis</em> at Cooper Hewitt, the site transforms Landis's methodical color and systematic grid structure into a hands-on digital tool.</p>
+          <p>Users can adjust parameters to generate endlessly varied outputs that allow for the reinterpretation of Landis's work through digital code. The platform is designed for creators to save these generative outputs and integrate them into your own work. Color Decoded is a toolset that lets you build with Richard Landis's methodology. It merges art and interaction design into a space where users can explore how color and structure work together when translated into code.</p>
+        </div>
+      </div>
+
+      <div class="about-wave">
+        <canvas id="wave-canvas" aria-label="Artwork transforming into ASCII"></canvas>
+      </div>
+
+      <div class="about-credits">
+        <div class="credit-col">
+          <div class="credit-label">In collaboration with:</div>
+          <div class="credit-name">Cooper Hewitt,<br>Design Museum</div>
+        </div>
+        <div class="credit-col">
+          <div class="credit-label">Designed by:</div>
+          <div class="credit-name">Sarah Pak</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Section 2: bio block + photo ===== -->
+    <div class="about-section about-section-2">
+      <div class="bio-grid">
+        <div class="bio-left">
+          <h2 class="bio-title">Richard Landis<br>1931 – 2023</h2>
+          <div class="bio-content">
+            <div class="bio-label">About</div>
+            <div class="bio-text">
+              <p>Richard Landis (American, born 1931) was a master weaver who pursued a nearly lifelong investigation of pattern and color. His double-cloth textiles are complex systems of closely related full-tones and half-tones of color, organized into abstract geometries of endless variation. In Landis's weavings, small, medium, and large rectangles and squares repeat in ever-changing order, and every possible color combination is played out both horizontally and vertically. What appears to be a random arrangement of colored squares is a balanced and controlled expression of a well-modulated palette.</p>
+              <p><em>Color Decoded: The Textiles of Richard Landis</em> celebrates the recent acquisition of six of Landis's most important works for Cooper Hewitt's collection. The drawings demonstrate how Landis would calculate and visualize every permutation possible within a defined set of colors. While the actual weaving could be completed in days, it sometimes took Landis a month or more to work out the full range of tones and hues on paper, design the geometric pattern, and prepare the loom to weave the cloth.</p>
+              <p>Though his primary medium was fiber, he viewed himself as an abstract artist, famously stating, "I paint the surface. I do not paint on the surface".</p>
+            </div>
+          </div>
+        </div>
+        <div class="bio-right">
+          <img class="bio-img" src="landis-portrait.jpg" alt="Richard Landis"
+               onerror="this.classList.add('img-missing')" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============== DECODE PREVIEW MODAL ============== -->
+<div class="decode-modal" id="decode-modal" role="dialog" aria-modal="true">
+  <button class="close-btn" id="decode-close" aria-label="close">×</button>
+  <img id="decode-img" alt="" crossorigin="anonymous" />
+  <div class="actions">
+    <button class="decode-btn" id="decode-go"><span>Decode</span></button>
+  </div>
+</div>
+
+<!-- ============== SAVE NAME MODAL ============== -->
+<div class="name-modal" id="name-modal" role="dialog" aria-modal="true">
+  <div class="name-card">
+    <div class="name-label">Name your design</div>
+    <input type="text" id="name-input" placeholder="Untitled" maxlength="60" />
+    <div class="name-actions">
+      <button class="btn-bordered" id="name-cancel">Cancel</button>
+      <button class="btn-bordered" id="name-confirm">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== EXPORT MODAL ============== -->
+<div class="name-modal" id="export-modal" role="dialog" aria-modal="true">
+  <div class="name-card">
+    <div class="name-label">Export</div>
+    <div class="export-options">
+      <button class="btn-bordered" data-export="png">PNG</button>
+      <button class="btn-bordered" data-export="mov">MOV</button>
+    </div>
+    <div class="name-actions" style="justify-content:center">
+      <button class="btn-bordered" id="export-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== CREATE (EDITOR) ============== -->
+<section class="page" id="page-create">
+  <div class="editor">
+    <!-- LEFT: control panel -->
+    <aside class="panel-left">
+
+      <div class="ctl ctl-row">
+        <div class="ctl-row-left">
+          <span class="label">Invert</span>
+          <button class="switch" id="invert-toggle" aria-pressed="false">
+            <span class="knob"></span>
+          </button>
+        </div>
+        <button class="icon-btn icon-btn-square" id="btn-reset" title="Reset" aria-label="reset">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="ctl">
+        <div class="label">Character Set</div>
+        <div class="custom-select" id="charset-select">
+          <button type="button" class="custom-select-btn" id="charset-btn" aria-haspopup="listbox" aria-expanded="false">
+            <span id="charset-display">Standard</span>
+            <span class="custom-select-caret">+</span>
+          </button>
+          <ul class="custom-select-options" id="charset-options" role="listbox">
+            <li role="option" data-value="standard" class="active">Standard</li>
+            <li role="option" data-value="detailed">Detailed</li>
+            <li role="option" data-value="blocks">Blocks</li>
+            <li role="option" data-value="simple">Simple</li>
+            <li role="option" data-value="binary">Binary</li>
+            <li role="option" data-value="shaded">Shaded</li>
+            <li role="option" data-value="dense">Dense</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ctl">
+        <div class="label">Brightness <span class="val" id="val-brightness">0</span></div>
+        <input type="range" id="brightness" min="-100" max="100" value="0" />
+      </div>
+
+      <div class="ctl">
+        <div class="label">Contrast <span class="val" id="val-contrast">0</span></div>
+        <input type="range" id="contrast" min="-100" max="100" value="0" />
+      </div>
+
+      <div class="ctl">
+        <div class="label">Detail Level <span class="val" id="val-detail">140</span></div>
+        <input type="range" id="detail" min="50" max="240" value="140" />
+      </div>
+
+      <div class="ctl">
+        <div class="label">Saturation <span class="val" id="val-saturation">20</span></div>
+        <input type="range" id="saturation" min="-100" max="100" value="20" />
+      </div>
+
+      <div class="ctl">
+        <div class="label">Hue <span class="val" id="val-hue">0</span></div>
+        <input type="range" id="hue" min="-180" max="180" value="0" />
+      </div>
+
+      <div class="ctl">
+        <div class="label">Animation Speed <span class="val" id="val-anim">0</span></div>
+        <input type="range" id="anim" min="0" max="100" value="0" />
+      </div>
+
+      <button class="btn-bordered btn-save-full" id="btn-save">Save</button>
+    </aside>
+
+    <!-- CENTER: ASCII canvas -->
+    <main class="stage-wrap">
+      <div class="stage" id="stage">
+        <canvas id="ascii-canvas" aria-label="ASCII rendering"></canvas>
+        <div class="empty-stage" id="empty-stage">Pick an artwork from the home page to begin</div>
+      </div>
+      <div class="src-info" id="src-name"></div>
+    </main>
+
+    <!-- RIGHT BOTTOM: text source -->
+    <aside class="panel-right">
+      <div class="text-card">
+        <div class="text-label">Add Text</div>
+        <textarea id="text-input" class="text-input"
+          placeholder="Type text to weave into the ASCII art."></textarea>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============== SAVED ============== -->
+<section class="page" id="page-saved">
+  <div class="saved-preview-wrap">
+    <canvas id="saved-preview" aria-label="design preview"></canvas>
+  </div>
+  <div class="saved-table" id="saved-table"></div>
+</section>
+
+<div class="toast" id="toast"></div>
+<canvas id="work-canvas"></canvas>
+<canvas id="preview-work"></canvas>
+
+<script src="script.js"></script>
+</body>
+</html>

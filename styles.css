@@ -1,0 +1,956 @@
+/* ==========================================================
+   COLOR DECODED — styles
+   ========================================================== */
+
+/* ---------- Reset / base ---------- */
+*,*::before,*::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #ffffff; color: #000000; }
+body {
+  font-family: "Helvetica Neue", "Akzidenz-Grotesk", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  height: 100vh;
+  overflow: hidden;
+}
+button { font-family: inherit; cursor: pointer; color: inherit; }
+input, select, textarea { font-family: inherit; }
+
+/* ---------- Top nav ---------- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 18px 32px;
+  background: #ffffff;
+  transition: opacity 0.4s ease, transform 0.4s ease, background 0.3s ease;
+}
+.topbar.hidden { opacity: 0; pointer-events: none; transform: translateY(-6px); }
+.topbar .left, .topbar .right {
+  display: flex; align-items: center; gap: 28px;
+}
+.topbar .right { justify-content: flex-end; }
+
+/* shared nav-link / title-link styles for animated underline */
+.topbar .nav-link,
+.topbar .title {
+  background: none;
+  border: 0;
+  padding: 6px 0 4px;
+  color: #000;
+  text-transform: uppercase;
+  position: relative;
+  cursor: pointer;
+}
+.topbar .nav-link { font-size: 14px; letter-spacing: 0.18em; }
+.topbar .title    { font-size: 22px; letter-spacing: 0.22em; padding: 6px 0; }
+
+.topbar .nav-link span,
+.topbar .title span {
+  display: inline-block;
+  position: relative;
+  padding-bottom: 4px;
+}
+.topbar .nav-link span::after,
+.topbar .title span::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.topbar .nav-link:hover,
+.topbar .title:hover { opacity: 0.78; }
+.topbar .nav-link:hover span::after,
+.topbar .title:hover span::after { transform: scaleX(1); }
+.topbar .nav-link.active span::after { transform: scaleX(1); }
+
+/* On the home page, top + bottom margins are transparent so artworks
+   read edge-to-edge underneath the nav text. */
+body.on-home .topbar { background: transparent; }
+
+/* ---------- Pages ---------- */
+.page { display: none; padding: 76px 0 0; height: 100vh; }
+.page.active { display: block; }
+.page#page-create.active { display: grid; }
+.page#page-home.active   { display: block; }
+
+/* =========================================================
+   HOME (gallery) — landing
+   ========================================================= */
+#page-home {
+  padding: 0;          /* no top/bottom margins */
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+.home-stage {
+  position: absolute;
+  inset: 0;            /* artworks reach the viewport edges */
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* hide helper that beats CSS specificity */
+.gallery-linear.hide, .gallery-grid.hide { display: none !important; }
+
+/* --- LINEAR view: aspect-ratio set inline per tile, object-fit contain
+   so images are never cropped. Slightly smaller than before. --- */
+.gallery-linear {
+  position: absolute; inset: 0;
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 90px 70px;       /* breathing room around tiles */
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.gallery-linear::-webkit-scrollbar { display: none; }
+
+.gallery-linear .tile {
+  flex: 0 0 auto;
+  position: relative;
+  cursor: pointer;
+  height: 52vh;
+  /* Composed transform: layout offset + hover lift + scroll jiggle.
+     Variables let JS update jiggle independently of hover state. */
+  --y: 0px;
+  --hy: 0px;
+  --jx: 0px;
+  --jy: 0px;
+  --jr: 0deg;
+  transform: translate3d(var(--jx), calc(var(--y) + var(--hy) + var(--jy)), 0) rotate(var(--jr));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.gallery-linear .tile:hover { --hy: -8px; }
+.gallery-linear .tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;       /* never crop the artwork */
+  background: #f5f5f5;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* --- GALLERY view: 12-column grid, 6 rows × 3–4 tiles, no crops --- */
+.gallery-grid {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 32px;
+  gap: 16px;
+  padding: 80px 56px 80px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  background: #ffffff;
+  scrollbar-width: none;
+}
+.gallery-grid::-webkit-scrollbar { display: none; }
+
+.gallery-grid .tile {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transform-origin: center;
+  --hy: 0px;
+  --jx: 0px;
+  --jy: 0px;
+  --jr: 0deg;
+  transform: translate3d(var(--jx), calc(var(--hy) + var(--jy)), 0) rotate(var(--jr));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.gallery-grid .tile:hover { --hy: -4px; }
+.gallery-grid .tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;       /* never crop */
+  background: #ffffff;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* "Shuffle" entry: synchronized, no opacity (so screen never goes blank) */
+@keyframes shuffleIn {
+  0%   { transform: translate(var(--sx, 0), var(--sy, 0)) rotate(var(--sr, 0deg)); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes shuffleInLinear {
+  0%   { transform: translate(var(--sx, 0), calc(var(--y, 0px) + var(--sy, 0px))) rotate(var(--sr, 0deg)); }
+  100% { transform: translate(0, var(--y, 0px)) rotate(0deg); }
+}
+
+/* Bottom helper + toggle — transparent, sits above artworks */
+.home-bottom {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;             /* +2px from previous */
+  padding: 14px 0 22px;
+  background: transparent;
+  z-index: 10;
+  pointer-events: none;  /* so artworks beneath remain clickable in the strip */
+}
+.home-bottom > * { pointer-events: auto; }
+.home-helper {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #000;
+}
+.home-toggle {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: #000;
+}
+.toggle-label { user-select: none; cursor: pointer; }
+.home-toggle .pill {
+  width: 60px; height: 20px;
+  border: 1.5px solid #000;
+  border-radius: 31px;
+  position: relative; cursor: pointer;
+  background: transparent;
+}
+.home-toggle .pill .dot {
+  position: absolute; top: 3px; left: 3px;
+  width: 11px; height: 11px;
+  background: #000; border-radius: 50%;
+  transition: left 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.home-toggle .pill[data-mode="grid"] .dot { left: calc(100% - 14px); }
+
+/* =========================================================
+   ABOUT page — three snap sections, each fills the viewport.
+   ========================================================= */
+#page-about {
+  padding: 0;
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  background: #ffffff;
+  scrollbar-width: thin;
+}
+#page-about::-webkit-scrollbar { width: 4px; background: transparent; }
+#page-about::-webkit-scrollbar-thumb { background: #000; }
+
+.about-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #000;
+}
+
+.about-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100vh;
+  padding: 86px 64px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 28px;
+}
+
+/* ----- Sequential reveal: each leaf element fades up with a stagger
+   when its section enters view. Uses a CSS animation (rather than a
+   transition) so each entry replays cleanly from the hidden state
+   without any first-frame flicker. The .in-view class is toggled by
+   an IntersectionObserver as the user scrolls. ----- */
+.about-section > .about-intro,
+.about-section > .about-wave,
+.about-section > .about-credits,
+.about-section .bio-grid > .bio-right,
+.about-section .bio-left > .bio-title,
+.about-section .bio-left > .bio-content {
+  opacity: 0;
+  transform: translateY(24px);
+  will-change: opacity, transform;
+}
+
+.about-section.in-view > .about-intro    { animation: aboutFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both; }
+.about-section.in-view > .about-wave     { animation: aboutFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both; }
+.about-section.in-view > .about-credits  { animation: aboutFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.65s both; }
+
+.about-section.in-view .bio-left > .bio-title    { animation: aboutFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both; }
+.about-section.in-view .bio-left > .bio-content  { animation: aboutFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both; }
+.about-section.in-view .bio-grid > .bio-right    { animation: aboutFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both; }
+
+@keyframes aboutFadeIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ----- Section 1: intro + wave + credits ----- */
+.about-section-1 { padding-top: 96px; }
+
+.about-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* heading left half, body right half */
+  gap: 0;
+  align-items: start;
+}
+.about-h1 {
+  font-size: 28px;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.05;
+  margin: 0;
+}
+.about-body {
+  /* Body text spans the right half from the page's center line
+     to the right edge — same right edge as the wave canvas below. */
+  width: 100%;
+}
+.about-body p {
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0 0 12px;
+}
+.about-body p:last-child { margin-bottom: 0; }
+
+.about-wave {
+  position: relative;
+  width: 100%;
+}
+#wave-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #ffffff;
+}
+
+.about-credits {
+  display: flex;
+  align-items: start;
+  gap: 60px;         /* tighter — 'Designed by' sits closer to 'In collaboration with' */
+}
+.credit-col { font-size: 12px; }
+.credit-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.credit-name {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+
+/* Divider */
+.about-divider {
+  border: 0;
+  border-top: 1px solid #000;
+  margin: 0;
+}
+
+/* ----- Section 2: bio block beside portrait photo ----- */
+.about-section-2 { gap: 32px; padding-top: 84px; }
+
+.bio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;     /* text left half, photo right half */
+  gap: 80px;
+  align-items: start;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Big "RICHARD LANDIS / 1931 – 2023" heading */
+.bio-title {
+  font-size: 38px;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.08;
+  margin: 0 0 70px;
+}
+
+/* Two-column inside the left half: small ABOUT label + body text */
+.bio-content {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+.bio-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.bio-text {
+  max-width: 380px;
+}
+.bio-text p {
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0 0 14px;
+}
+.bio-text p:last-child { margin-bottom: 0; }
+
+/* Photo on the right */
+.bio-right { width: 100%; }
+.bio-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 78vh;
+  object-fit: cover;
+  background: #ececec;
+}
+.bio-img.img-missing {
+  aspect-ratio: 0.85;
+  position: relative;
+}
+.bio-img.img-missing::after {
+  content: "Save photo as outputs/landis-portrait.jpg";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #888;
+  background: #ececec;
+  padding: 0 12px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .about-section { padding: 80px 24px 24px; }
+  .about-intro { grid-template-columns: 1fr; gap: 24px; }
+  .about-credits { flex-direction: column; gap: 24px; }
+  .about-body { max-width: none; }
+  .bio-grid { grid-template-columns: 1fr; gap: 32px; }
+  .bio-title { font-size: 32px; margin-bottom: 32px; }
+  .bio-content { grid-template-columns: 60px 1fr; gap: 18px; }
+  .bio-text { max-width: none; }
+}
+
+/* =========================================================
+   DECODE MODAL
+   ========================================================= */
+.decode-modal {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  display: none; align-items: center; justify-content: center;
+  flex-direction: column; gap: 24px;
+}
+.decode-modal.open { display: flex; }
+.decode-modal img {
+  max-width: 60vw; max-height: 62vh;
+  object-fit: contain;
+  background: #fff;
+}
+.decode-modal .actions { display: flex; gap: 24px; align-items: center; }
+
+.decode-modal .decode-btn {
+  background: transparent;
+  color: #fff;
+  border: 0;
+  padding: 6px 0;
+  font-size: 16px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.decode-modal .decode-btn span {
+  display: inline-block;
+  position: relative;
+  padding-bottom: 4px;
+}
+.decode-modal .decode-btn span::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 1px;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.decode-modal .decode-btn:hover span::after { transform: scaleX(1); }
+
+.decode-modal .close-btn {
+  position: absolute; top: 24px; right: 24px;
+  background: transparent; border: 1px solid #fff; color:#fff;
+  width: 34px; height: 34px; border-radius: 50%;
+  font-size: 18px;
+  display: grid; place-items: center;
+}
+
+/* =========================================================
+   NAME / EXPORT MODAL
+   ========================================================= */
+.name-modal {
+  position: fixed; inset: 0; z-index: 110;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+}
+.name-modal.open { display: flex; }
+.name-card {
+  background: #fff;
+  padding: 26px 28px;
+  width: 360px;
+  max-width: 90vw;
+  border: 1.5px solid #000;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.name-label {
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+}
+.name-card input[type=text] {
+  width: 100%;
+  border: 1.5px solid #000;
+  background: transparent;
+  padding: 10px 12px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  outline: none;
+}
+.name-actions {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 6px;
+}
+.name-actions .btn-bordered { flex: 0 0 auto; min-width: 100px; }
+.export-options { display: flex; gap: 10px; }
+.export-options .btn-bordered { flex: 1; }
+
+/* =========================================================
+   CREATE (editor)
+   ========================================================= */
+#page-create.active {
+  grid-template-columns: 240px 1fr 240px;
+  gap: 24px;
+  padding: 70px 24px 16px;
+  height: 100vh;
+}
+.editor { display: contents; }
+
+.panel-left {
+  position: relative;
+  padding: 8px 4px 16px;
+  display: flex;
+  flex-direction: column;
+  /* Distribute the controls vertically so the first sits at the top,
+     the Save button sits at the bottom (aligned with the text-card's
+     bottom edge), and the sliders spread evenly between them. The
+     spacing between every adjacent pair is the same — no isolated
+     "big gap" anywhere. */
+  justify-content: space-between;
+  gap: 14px;          /* minimum gap; space-between expands as needed */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.panel-left::-webkit-scrollbar { width: 3px; }
+.panel-left::-webkit-scrollbar-thumb { background: #000; }
+
+/* Save button sticks to the panel's bottom edge whenever content
+   overflows (small windows), so it's always reachable. Otherwise
+   it sits naturally at the bottom via space-between above. */
+.panel-left .btn-save-full {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  z-index: 2;
+}
+
+.ctl { margin: 0; }
+.ctl-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ctl-row-left { display: flex; align-items: center; gap: 12px; }
+
+.ctl .label {
+  font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ctl .label .val {
+  font-size: 10px; opacity: 0.7;
+  font-feature-settings: "tnum";
+}
+
+.ctl input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 1.5px; background: #000; outline: none;
+  margin: 6px 0;
+  cursor: pointer;
+}
+.ctl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 11px; height: 11px; background: #000; border-radius: 50%;
+  border: 0; cursor: pointer;
+}
+.ctl input[type="range"]::-moz-range-thumb {
+  width: 11px; height: 11px; background: #000; border-radius: 50%;
+  border: 0; cursor: pointer;
+}
+
+.switch {
+  width: 38px; height: 18px; border: 1.5px solid #000;
+  border-radius: 31px; position: relative; cursor: pointer;
+  background: transparent;
+  flex: 0 0 auto;
+}
+.switch .knob {
+  position: absolute; top: 2px; left: 2px;
+  width: 11px; height: 11px; background: #000; border-radius: 50%;
+  transition: left 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.switch.on .knob { left: calc(100% - 13px); }
+
+.icon-btn {
+  border: 1.5px solid #000; background: transparent;
+  width: 28px; height: 28px;
+  display:grid; place-items:center;
+}
+.icon-btn-square { border-radius: 0; }
+.icon-btn:hover { background: #000; color: #fff; }
+.icon-btn svg { width: 14px; height: 14px; }
+
+/* Custom dropdown */
+.custom-select { position: relative; width: 100%; }
+.custom-select-btn {
+  width: 100%;
+  border: 1.5px solid #000;
+  background: transparent;
+  padding: 10px 12px;
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer;
+}
+.custom-select-btn:hover { background: #000; color: #fff; }
+.custom-select-caret {
+  font-size: 14px; line-height: 0.8; letter-spacing: 0;
+  transition: transform 0.3s ease;
+}
+.custom-select.open .custom-select-caret { transform: rotate(45deg); }
+.custom-select-options {
+  list-style: none;
+  margin: -1px 0 0;
+  padding: 0;
+  border: 1.5px solid #000;
+  background: #fff;
+  position: absolute; left: 0; right: 0; top: 100%;
+  z-index: 60;
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+}
+.custom-select.open .custom-select-options { display: block; }
+.custom-select-options li {
+  padding: 10px 12px;
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  cursor: pointer;
+  border-top: 1px solid #000;
+}
+.custom-select-options li:first-child { border-top: 0; }
+.custom-select-options li:hover,
+.custom-select-options li.active {
+  background: #000; color: #fff;
+}
+
+.btn-bordered {
+  border: 1.5px solid #000; background: transparent;
+  padding: 10px 16px;
+  font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.btn-bordered:hover { background: #000; color: #fff; }
+.btn-save-full { width: 100%; }
+
+.stage-wrap {
+  position: relative;
+  height: 100%;
+  min-height: 0;        /* let the grid item shrink correctly */
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden;     /* keep the canvas from ever spilling out */
+}
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+#ascii-canvas {
+  display: block;
+  background: #ffffff;
+  max-width: 100%;
+  max-height: 100%;
+}
+.text-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.empty-stage {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.empty-stage.hide { display: none; }
+.src-info {
+  position: absolute;
+  bottom: 6px; left: 8px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* Multi text overlays */
+.text-box {
+  position: absolute;
+  pointer-events: auto;
+  display: inline-block;
+  width: max-content;
+  max-width: 80%;
+  min-width: 60px;
+  color: #000;
+  background: transparent;
+  font-family: "Helvetica Neue", "Akzidenz-Grotesk", Helvetica, Arial, sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  line-height: 1.15;
+  outline: none;
+  border: 1px dashed transparent;
+  padding: 6px 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: text;
+}
+.text-box:focus { border-color: rgba(0,0,0,0.6); }
+.text-box:hover { border-color: rgba(0,0,0,0.25); }
+.text-box.active { border-color: rgba(0,0,0,0.6); cursor: text; }
+.text-box.active:focus { border-style: solid; }
+
+.text-handle {
+  position: absolute;
+  top: -10px; left: -10px;
+  width: 18px; height: 18px;
+  background: #000; color: #fff;
+  display: none;
+  align-items: center; justify-content: center;
+  font-size: 9px;
+  cursor: grab;
+  user-select: none;
+}
+.text-handle:active { cursor: grabbing; }
+.text-box.active .text-handle { display: flex; }
+
+.text-delete {
+  position: absolute;
+  top: -10px; right: -10px;
+  width: 18px; height: 18px;
+  background: #000; color: #fff;
+  border: 0;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 0;
+}
+.text-box.active .text-delete { display: flex; }
+
+.resize-handle {
+  position: absolute;
+  right: -8px; bottom: -8px;
+  width: 14px; height: 14px;
+  background: #000;
+  border: 2px solid #fff;
+  cursor: nwse-resize;
+  display: none;
+}
+.text-box.active .resize-handle { display: block; }
+
+.panel-right { position: relative; }
+.text-card {
+  position: fixed;
+  right: 24px;
+  bottom: 32px;            /* aligns with the bottom of the Save button */
+  width: 240px;
+  background: #ffffff;
+}
+.text-label {
+  font-size: 12px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 16px;     /* matches the slider label-to-track spacing */
+}
+.text-add {
+  padding: 6px 10px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+.text-input {
+  width: 100%;
+  border: 1.5px solid #000;
+  background: transparent;
+  padding: 10px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  resize: vertical;
+  min-height: 70px;
+  max-height: 160px;
+  outline: none;
+}
+.text-helper {
+  font-size: 9px; letter-spacing: 0.08em; opacity: 0.65;
+  text-transform: uppercase;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+/* =========================================================
+   SAVED PAGE
+   List fills full viewport. Preview overlays on top of rows.
+   ========================================================= */
+#page-saved { padding: 80px 0 0; position: relative; height: 100vh; overflow: hidden; }
+
+.saved-preview-wrap {
+  position: absolute;
+  top: 12vh;
+  left: 0; right: 0;
+  bottom: 42vh;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  padding: 0 32px;
+  z-index: 5;
+}
+#saved-preview {
+  max-width: 70vw;
+  max-height: 100%;
+  display: none;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+#saved-preview.show { display: block; }
+
+/* Outer scroll container — no border at the top so there's no
+   line under the menu bar. */
+.saved-table {
+  position: absolute;
+  top: 80px; left: 0; right: 0; bottom: 0;
+  overflow-y: auto;
+  background: transparent;
+  scrollbar-width: thin;
+}
+.saved-table::-webkit-scrollbar { width: 3px; }
+.saved-table::-webkit-scrollbar-thumb { background: #000; }
+
+/* Inner wrapper anchors rows to the bottom when the list is short
+   and naturally allows scrolling once it overflows. */
+.saved-rows {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.saved-row {
+  display: grid;
+  grid-template-columns: 1fr 110px 110px 110px;
+  align-items: center;
+  border-top: 1.5px solid #000;   /* line on top of every row, including first */
+  padding: 14px 32px;
+  font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase;
+  gap: 24px;
+  background: #ffffff;
+  transition: background 0.25s ease;
+}
+.saved-row .name { display: flex; align-items: center; }
+.saved-row .name .label {
+  display: inline-block;
+  padding: 6px 10px;
+  background: transparent;
+  color: #000;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.saved-row:hover .name .label,
+.saved-row.is-active .name .label {
+  background: #000;
+  color: #fff;
+}
+.saved-row .saved-row-link {
+  background: transparent; border: 0;
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 6px 0;
+  text-align: center;
+}
+.saved-row .saved-row-link:hover { text-decoration: underline; }
+.saved-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 0;
+  font-size: 13px; letter-spacing: 0.18em; opacity: 0.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: transparent;
+}
+
+/* =========================================================
+   TOAST + hidden canvases
+   ========================================================= */
+.toast {
+  position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+  background: #000; color: #fff;
+  padding: 8px 16px;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  z-index: 200;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.toast.show { opacity: 1; }
+
+#work-canvas, #preview-work { display: none; }
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 1100px) {
+  #page-create.active { grid-template-columns: 200px 1fr 200px; gap: 16px; padding: 70px 16px 16px; }
+  .text-card { width: 200px; right: 16px; bottom: 16px; }
+  .gallery-grid .tile { height: clamp(180px, 26vh, 280px); }
+}
+@media (max-width: 800px) {
+  .topbar { padding: 12px 16px; grid-template-columns: 1fr auto; }
+  .topbar .right { display: none; }
+}
